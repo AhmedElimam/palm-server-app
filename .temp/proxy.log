@@ -1,4 +1,4 @@
-2025/06/28 08:54:23 Configuration loaded - Base URL: http://localhost:8080, Port: 8080
+2025/06/28 10:26:54 Configuration loaded - Base URL: http://localhost:8080, Port: 8080
 [GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
 
 [GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
@@ -13,4 +13,4 @@
 [GIN-debug] POST   /proxy/add                --> proxy-service/internal/handlers.(*ProxyHandler).AddProxy-fm (3 handlers)
 [GIN-debug] DELETE /proxy/:id                --> proxy-service/internal/handlers.(*ProxyHandler).RemoveProxy-fm (3 handlers)
 [GIN-debug] GET    /proxy/stats              --> proxy-service/internal/handlers.(*ProxyHandler).GetStats-fm (3 handlers)
-2025/06/28 08:54:23 Starting proxy service on port 8080
+2025/06/28 10:26:54 Starting proxy service on port 8080

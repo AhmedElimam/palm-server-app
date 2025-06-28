@@ -42,14 +42,6 @@ check_prerequisites() {
     
     local missing_deps=()
     
-    if ! command_exists node; then
-        missing_deps+=("Node.js")
-    fi
-    
-    if ! command_exists npm; then
-        missing_deps+=("npm")
-    fi
-    
     if ! command_exists php; then
         missing_deps+=("PHP")
     fi
@@ -110,21 +102,6 @@ run_migrations() {
     cd ..
 }
 
-install_frontend_deps() {
-    print_status "Installing frontend dependencies..."
-    
-    cd palm-scrapping-frontend
-    
-    if npm install; then
-        print_success "Frontend dependencies installed successfully"
-    else
-        print_error "Failed to install frontend dependencies"
-        exit 1
-    fi
-    
-    cd ..
-}
-
 install_proxy_deps() {
     print_status "Installing proxy service dependencies..."
     
@@ -151,10 +128,6 @@ start_services() {
             kill $(cat .temp/backend.pid) 2>/dev/null || true
             rm -f .temp/backend.pid
         fi
-        if [ -f .temp/frontend.pid ]; then
-            kill $(cat .temp/frontend.pid) 2>/dev/null || true
-            rm -f .temp/frontend.pid
-        fi
         if [ -f .temp/proxy.pid ]; then
             kill $(cat .temp/proxy.pid) 2>/dev/null || true
             rm -f .temp/proxy.pid
@@ -171,13 +144,6 @@ start_services() {
     echo $! > ../.temp/backend.pid
     cd ..
     print_success "Backend server started on http://localhost:8000"
-    
-    print_status "Starting frontend development server..."
-    cd palm-scrapping-frontend
-    npm run dev > ../.temp/frontend.log 2>&1 &
-    echo $! > ../.temp/frontend.pid
-    cd ..
-    print_success "Frontend server started (check logs for URL)"
     
     print_status "Starting Go proxy service..."
     cd proxy-service
@@ -196,9 +162,9 @@ main() {
     print_status "Starting palm-scrapping project setup..."
     print_status "Detected OS: $(detect_os)"
     
-    if [ ! -d "palm-scrapping-backend" ] || [ ! -d "palm-scrapping-frontend" ] || [ ! -d "proxy-service" ]; then
+    if [ ! -d "palm-scrapping-backend" ] || [ ! -d "proxy-service" ]; then
         print_error "Please run this script from the project root directory"
-        print_status "Expected directories: palm-scrapping-backend, palm-scrapping-frontend, proxy-service"
+        print_status "Expected directories: palm-scrapping-backend, proxy-service"
         exit 1
     fi
     
@@ -206,7 +172,6 @@ main() {
     
     install_backend_deps
     run_migrations
-    install_frontend_deps
     install_proxy_deps
     
     start_services

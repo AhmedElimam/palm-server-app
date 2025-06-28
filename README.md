@@ -1,10 +1,10 @@
-# 🚀 Palm Scraping Project - Full Stack E-commerce Data Pipeline
+# Palm Scraping Project - Full Stack E-commerce Data Pipeline
 
 A comprehensive web scraping and data management system that extracts product information from multiple e-commerce platforms and presents it through a modern web interface. Built with Laravel, Next.js, and Go microservices.
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
-This project follows a **microservices architecture** with three main components working together:
+This project follows a microservices architecture with three main components working together:
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
@@ -20,26 +20,26 @@ This project follows a **microservices architecture** with three main components
                         └─────────────────┘
 ```
 
-## 🎯 How It Works
+## How It Works
 
-### 1. **Data Collection Pipeline**
+### Data Collection Pipeline
 The system fetches product data from multiple sources:
 
 - **Apify API Integration**: Connects to Apify's scraping services for Amazon and Jumia
 - **Direct Web Scraping**: Uses Guzzle HTTP client with rotating user agents
 - **Proxy Management**: Go microservice handles proxy rotation and management
 
-### 2. **Data Processing**
+### Data Processing
 - **Laravel Backend**: Processes and normalizes data from different sources
 - **Database Storage**: Stores products with platform identification
 - **API Endpoints**: RESTful API for data retrieval and management
 
-### 3. **Frontend Presentation**
+### Frontend Presentation
 - **Next.js App**: Modern React-based interface with TypeScript
 - **Real-time Updates**: 30-second automatic refresh cycle
 - **Responsive Design**: Mobile-first approach with Tailwind CSS
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 ### Backend (Laravel 12)
 - **Framework**: Laravel 12 with PHP 8.2+
@@ -66,7 +66,7 @@ The system fetches product data from multiple sources:
 - **Process Management**: Custom shell scripts
 - **Development**: Hot reloading and development tools
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 delivery/
@@ -98,7 +98,7 @@ delivery/
 └── start-services.sh              # Development orchestration
 ```
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - **Node.js** 18+ and npm
@@ -151,7 +151,7 @@ go mod download
 go run main.go
 ```
 
-## 🔧 Configuration
+## Configuration
 
 ### Environment Variables
 
@@ -181,7 +181,7 @@ MaxRetries: 3
 RotationDelay: 5
 ```
 
-## 📊 API Endpoints
+## API Endpoints
 
 ### Products API
 - `GET /api/products` - Get all products with pagination
@@ -201,7 +201,7 @@ RotationDelay: 5
 - `DELETE /proxy/{id}` - Remove proxy
 - `GET /proxy/stats` - Get service statistics
 
-## 🔄 Data Flow
+## Data Flow
 
 1. **Initialization**: Frontend loads and fetches initial data from both platforms
 2. **Auto-refresh**: Every 30 seconds, new data is fetched automatically
@@ -209,7 +209,7 @@ RotationDelay: 5
 4. **Manual Scraping**: Admins can trigger manual scraping of specific URLs
 5. **Proxy Rotation**: Go service manages proxy rotation for scraping requests
 
-## 🎨 Features
+## Features
 
 ### Frontend Features
 - **Responsive Grid Layout**: Beautiful product cards with images
@@ -235,7 +235,7 @@ RotationDelay: 5
 - **Statistics**: Monitor usage and performance metrics
 - **RESTful API**: Easy integration with other services
 
-## 🧪 Testing
+## Testing
 
 ### Backend Testing
 ```bash
@@ -255,7 +255,7 @@ cd palm-scrapping-frontend
 npm run test
 ```
 
-## 🚀 Deployment
+## Deployment
 
 ### Production Setup
 1. **Environment Configuration**: Set production environment variables
@@ -275,7 +275,7 @@ docker build -t palm-proxy ./proxy-service
 docker-compose up -d
 ```
 
-## 🔍 Monitoring & Logging
+## Monitoring & Logging
 
 ### Application Logs
 - **Laravel Logs**: `storage/logs/laravel.log`
@@ -287,7 +287,7 @@ docker-compose up -d
 - Proxy Service: `GET /health`
 - Frontend: Built-in Next.js health monitoring
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch
@@ -295,11 +295,11 @@ docker-compose up -d
 4. Add tests if applicable
 5. Submit a pull request
 
-## 📝 License
+## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 🆘 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -322,7 +322,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Check credentials in `.env`
 - Run migrations: `php artisan migrate`
 
-## 📞 Support
+## Support
 
 For questions or issues:
 - Create an issue in the repository
@@ -331,4 +331,4 @@ For questions or issues:
 
 ---
 
-**Built with ❤️ using modern web technologies** 
+Built with modern web technologies 

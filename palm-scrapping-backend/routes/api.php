@@ -20,4 +20,6 @@ Route::prefix('products')->group(function () {
     Route::post('/fetch-jumia-apify', [ProductsController::class, 'fetchFromJumiaApify'])->name('products.fetch-jumia-apify-post');
     Route::post('/fetch-both-apis', [ProductsController::class, 'fetchFromBothApis'])->name('products.fetch-both-apis-post');
     Route::get('/{id}', [ProductsController::class, 'show'])->name('products.show');
+    Route::put('/{id}', [ProductsController::class, 'update'])->name('products.update');
+    Route::delete('/{id}', [ProductsController::class, 'destroy'])->name('products.destroy');
 }); 

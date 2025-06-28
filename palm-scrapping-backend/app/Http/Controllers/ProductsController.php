@@ -269,4 +269,60 @@ class ProductsController
             ], 500);
         }
     }
+    public function update(Request $request, int $id): JsonResponse
+    {
+        $request->validate([
+            'title' => 'sometimes|string|max:255',
+            'price' => 'sometimes|numeric|min:0',
+            'image_url' => 'sometimes|url|nullable',
+            'platform' => 'sometimes|string|max:50'
+        ]);
+        
+        try {
+            $product = $this->productsService->getProductById($id);
+            if (!$product) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Product not found'
+                ], 404);
+            }
+            
+            $updatedProduct = $this->productsService->updateProduct($id, $request->all());
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Product updated successfully',
+                'data' => new ProductResource($updatedProduct)
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update product: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+    public function destroy(int $id): JsonResponse
+    {
+        try {
+            $product = $this->productsService->getProductById($id);
+            if (!$product) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Product not found'
+                ], 404);
+            }
+            
+            $this->productsService->deleteProduct($id);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Product deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete product: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

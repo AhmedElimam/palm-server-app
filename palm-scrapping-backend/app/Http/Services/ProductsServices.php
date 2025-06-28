@@ -459,4 +459,20 @@ class ProductsServices
     {
         return Product::find($id);
     }
+    
+    public function updateProduct(int $id, array $data): Product
+    {
+        $product = Product::findOrFail($id);
+        
+        $product->update($data);
+        
+        return $product->fresh();
+    }
+    
+    public function deleteProduct(int $id): bool
+    {
+        $product = Product::findOrFail($id);
+        
+        return $product->delete();
+    }
 }
