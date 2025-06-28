@@ -97,9 +97,10 @@ class ProductsController
                 'data' => ProductResource::collection($products)
             ], 201);
         } catch (\Exception $e) {
+            \Log::error('Failed to fetch from Apify: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch from Apify: ' . $e->getMessage()
+                'message' => 'Failed to fetch from Apify. Please try again later.'
             ], 500);
         }
     }
@@ -118,9 +119,10 @@ class ProductsController
                 'data' => ProductResource::collection($products)
             ], 201);
         } catch (\Exception $e) {
+            \Log::error('Failed to fetch from Apify: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch from Apify: ' . $e->getMessage()
+                'message' => 'Failed to fetch from Apify. Please try again later.'
             ], 500);
         }
     }
@@ -206,9 +208,10 @@ class ProductsController
                 'data' => ProductResource::collection($products)
             ], 201);
         } catch (\Exception $e) {
+            \Log::error('Failed to fetch from Jumia Apify: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch from Jumia Apify: ' . $e->getMessage()
+                'message' => 'Failed to fetch from Jumia Apify. Please try again later.'
             ], 500);
         }
     }
@@ -219,17 +222,14 @@ class ProductsController
             'jumia_limit' => 'nullable|integer|min:1|max:100',
             'total_limit' => 'nullable|integer|min:1|max:200'
         ]);
-        
         try {
             $amazonLimit = $request->get('amazon_limit');
             $jumiaLimit = $request->get('jumia_limit');
             $totalLimit = $request->get('total_limit');
-            
             if ($totalLimit && !$amazonLimit && !$jumiaLimit) {
                 $amazonLimit = ceil($totalLimit / 2);
                 $jumiaLimit = $totalLimit - $amazonLimit;
             }
-            
             if (!$amazonLimit && !$jumiaLimit) {
                 $amazonLimit = 10;
                 $jumiaLimit = 10;
@@ -238,18 +238,15 @@ class ProductsController
             } elseif (!$jumiaLimit) {
                 $jumiaLimit = 10;
             }
-            
             $results = $this->productsService->fetchFromBothApis($amazonLimit, $jumiaLimit);
-            
             $successMessage = "Products fetched successfully. ";
             $successMessage .= "Amazon: {$results['amazon_count']}/{$results['limits_used']['amazon']}, ";
             $successMessage .= "Jumia: {$results['jumia_count']}/{$results['limits_used']['jumia']}, ";
             $successMessage .= "Total: {$results['total_count']} products.";
-            
             if (!empty($results['errors'])) {
-                $successMessage .= " Errors: " . implode(', ', $results['errors']);
+                \Log::error('API fetch errors: ' . json_encode($results['errors']));
+                $successMessage .= " Errors occurred while fetching products.";
             }
-            
             return response()->json([
                 'success' => $results['success'],
                 'message' => $successMessage,
@@ -259,13 +256,14 @@ class ProductsController
                     'amazon_count' => $results['amazon_count'],
                     'jumia_count' => $results['jumia_count'],
                     'limits_used' => $results['limits_used'],
-                    'errors' => $results['errors']
+                    'errors' => !empty($results['errors']) ? ['Errors occurred while fetching products.'] : []
                 ]
             ], 201);
         } catch (\Exception $e) {
+            \Log::error('Failed to fetch from both APIs: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch from both APIs: ' . $e->getMessage()
+                'message' => 'Failed to fetch from both APIs. Please try again later.'
             ], 500);
         }
     }
