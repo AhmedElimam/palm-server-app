@@ -323,4 +323,28 @@ class ProductsController
             ], 500);
         }
     }
+    public function getByProductId(Request $request, string $productId): JsonResponse
+    {
+        try {
+            $platform = $request->get('platform');
+            $product = $this->productsService->getProductByProductId($productId, $platform);
+            
+            if (!$product) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Product not found with the given product ID'
+                ], 404);
+            }
+            
+            return response()->json([
+                'success' => true,
+                'data' => new ProductResource($product)
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch product: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

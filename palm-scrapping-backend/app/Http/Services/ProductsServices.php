@@ -168,6 +168,7 @@ class ProductsServices
         $title = $productData['name'] ?? $productData['displayName'] ?? $productData['title'] ?? '';
         $price = $this->extractPrice($productData);
         $imageUrl = $this->extractImageUrl($productData);
+        $productId = $productData['id'] ?? $productData['productId'] ?? $productData['sku'] ?? null;
         
         if (empty($title)) {
             return null;
@@ -178,7 +179,8 @@ class ProductsServices
             'price' => $price,
             'image_url' => $imageUrl,
             'platform' => 'jumia',
-            'source_url' => $productData['url'] ?? ''
+            'source_url' => $productData['url'] ?? '',
+            'product_id' => $productId
         ];
     }
     private function processApifyProduct(array $productData, string $platform = 'amazon'): ?array
@@ -186,6 +188,7 @@ class ProductsServices
         $title = $productData['title'] ?? $productData['name'] ?? '';
         $price = $this->extractPrice($productData);
         $imageUrl = $this->extractImageUrl($productData);
+        $productId = $productData['id'] ?? $productData['productId'] ?? $productData['asin'] ?? $productData['sku'] ?? null;
         
         if (empty($title)) {
             return null;
@@ -196,7 +199,8 @@ class ProductsServices
             'price' => $price,
             'image_url' => $imageUrl,
             'platform' => $platform,
-            'source_url' => $productData['url'] ?? ''
+            'source_url' => $productData['url'] ?? '',
+            'product_id' => $productId
         ];
     }
     private function extractPrice(array $productData): float
@@ -369,6 +373,16 @@ class ProductsServices
         $imageNode = $xpath->query('//img[@id="landingImage"]')->item(0);
         $imageUrl = $imageNode ? $imageNode->getAttribute('src') : '';
 
+        $productId = null;
+        if (preg_match('/\/dp\/([A-Z0-9]{10})/', $url, $matches)) {
+            $productId = $matches[1];
+        } else {
+            $asinNode = $xpath->query('//input[@name="ASIN"]/@value')->item(0);
+            if ($asinNode) {
+                $productId = $asinNode->textContent;
+            }
+        }
+
         if (empty($title)) {
             throw new \Exception('Could not extract product title from Amazon page');
         }
@@ -378,7 +392,8 @@ class ProductsServices
             'price' => $price,
             'image_url' => $imageUrl,
             'platform' => 'amazon',
-            'source_url' => $url
+            'source_url' => $url,
+            'product_id' => $productId
         ];
     }
     private function parseJumiaProduct(string $html, string $url): array
@@ -396,6 +411,16 @@ class ProductsServices
         $imageNode = $xpath->query('//img[@class="-fw -fh"]')->item(0);
         $imageUrl = $imageNode ? $imageNode->getAttribute('src') : '';
 
+        $productId = null;
+        if (preg_match('/\/p\/([A-Z0-9]+)/', $url, $matches)) {
+            $productId = $matches[1];
+        } else {
+            $skuNode = $xpath->query('//span[@class="-fs12 -c-grey9"]')->item(0);
+            if ($skuNode) {
+                $productId = trim($skuNode->textContent);
+            }
+        }
+
         if (empty($title)) {
             throw new \Exception('Could not extract product title from Jumia page');
         }
@@ -405,17 +430,41 @@ class ProductsServices
             'price' => $price,
             'image_url' => $imageUrl,
             'platform' => 'jumia',
-            'source_url' => $url
+            'source_url' => $url,
+            'product_id' => $productId
         ];
     }
     public function saveProduct(array $productData): Product
     {
         try {
+            // Check if product already exists by product_id
+            if (!empty($productData['product_id'])) {
+                $existingProduct = Product::where('product_id', $productData['product_id'])
+                                        ->where('platform', $productData['platform'] ?? 'amazon')
+                                        ->first();
+                
+                if ($existingProduct) {
+                    // Update existing product with new data
+                    $existingProduct->update([
+                        'title' => $productData['title'],
+                        'price' => $productData['price'],
+                        'image_url' => $productData['image_url'],
+                        'source_url' => $productData['source_url'] ?? $existingProduct->source_url,
+                    ]);
+                    
+                    $this->clearProductCaches();
+                    return $existingProduct->fresh();
+                }
+            }
+            
+            // Create new product
             $product = Product::create([
                 'title' => $productData['title'],
                 'price' => $productData['price'],
                 'image_url' => $productData['image_url'],
                 'platform' => $productData['platform'] ?? 'amazon',
+                'source_url' => $productData['source_url'] ?? '',
+                'product_id' => $productData['product_id'] ?? null,
             ]);
             
             $this->clearProductCaches();
@@ -485,6 +534,21 @@ class ProductsServices
         
         return Cache::remember($cacheKey, 600, function () use ($id) {
             return Product::find($id);
+        });
+    }
+    
+    public function getProductByProductId(string $productId, string $platform = null): ?Product
+    {
+        $cacheKey = "product_by_product_id_{$productId}_{$platform}";
+        
+        return Cache::remember($cacheKey, 600, function () use ($productId, $platform) {
+            $query = Product::where('product_id', $productId);
+            
+            if ($platform) {
+                $query->where('platform', $platform);
+            }
+            
+            return $query->first();
         });
     }
     

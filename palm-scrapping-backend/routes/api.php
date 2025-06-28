@@ -14,6 +14,7 @@ Route::prefix('products')->group(function () {
     Route::get('/fetch-both-apis', [ProductsController::class, 'fetchFromBothApis'])->name('products.fetch-both-apis');
     Route::get('/', [ProductsController::class, 'index'])->name('products.index');
     Route::get('/platform/{platform}', [ProductsController::class, 'getByPlatform'])->name('products.by-platform');
+    Route::get('/product-id/{productId}', [ProductsController::class, 'getByProductId'])->name('products.by-product-id');
     Route::post('/scrape', [ProductsController::class, 'scrape'])->name('products.scrape');
     Route::post('/scrape-multiple', [ProductsController::class, 'scrapeMultiple'])->name('products.scrape-multiple');
     Route::post('/fetch-apify', [ProductsController::class, 'fetchFromApify'])->name('products.fetch-apify');
