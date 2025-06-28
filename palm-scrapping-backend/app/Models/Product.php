@@ -10,7 +10,8 @@ class Product extends Model
         'title', 
         'price', 
         'image_url', 
-        'platform'
+        'platform',
+        'source_url'
     ];
     
     protected $casts = [

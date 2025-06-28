@@ -456,45 +456,14 @@ class ProductsServices
         $cacheKey = "products_unified_{$perPage}_{$platform}_{$page}";
         
         return Cache::remember($cacheKey, 300, function () use ($perPage, $platform) {
+            $query = Product::query();
+            
             if ($platform) {
-                return Product::where('platform', $platform)
-                             ->orderBy('created_at', 'desc')
-                             ->paginate($perPage);
+                $query->where('platform', $platform);
             }
             
-            $amazonPerPage = ceil($perPage / 2);
-            $jumiaPerPage = $perPage - $amazonPerPage;
-            
-            $amazonProducts = Product::where('platform', 'amazon')
-                                    ->orderBy('created_at', 'desc')
-                                    ->limit($amazonPerPage)
-                                    ->get();
-            
-            $jumiaProducts = Product::where('platform', 'jumia')
-                                   ->orderBy('created_at', 'desc')
-                                   ->limit($jumiaPerPage)
-                                   ->get();
-            
-            $combinedProducts = $amazonProducts->concat($jumiaProducts)
-                                             ->sortByDesc('created_at')
-                                             ->values();
-            
-            $currentPage = request()->get('page', 1);
-            $offset = ($currentPage - 1) * $perPage;
-            $items = $combinedProducts->slice($offset, $perPage);
-            
-            $total = Product::count();
-            
-            return new \Illuminate\Pagination\LengthAwarePaginator(
-                $items,
-                $total,
-                $perPage,
-                $currentPage,
-                [
-                    'path' => request()->url(),
-                    'pageName' => 'page',
-                ]
-            );
+            return $query->orderBy('created_at', 'desc')
+                        ->paginate($perPage);
         });
     }
     
@@ -545,6 +514,29 @@ class ProductsServices
     
     private function clearProductCaches(): void
     {
-        Cache::flush();
+        $page = request()->get('page', 1);
+        
+        for ($i = 1; $i <= 10; $i++) {
+            Cache::forget("products_unified_10_null_{$i}");
+            Cache::forget("products_unified_15_null_{$i}");
+            Cache::forget("products_unified_20_null_{$i}");
+            Cache::forget("products_unified_10_amazon_{$i}");
+            Cache::forget("products_unified_15_amazon_{$i}");
+            Cache::forget("products_unified_20_amazon_{$i}");
+            Cache::forget("products_unified_10_jumia_{$i}");
+            Cache::forget("products_unified_15_jumia_{$i}");
+            Cache::forget("products_unified_20_jumia_{$i}");
+        }
+        
+        for ($i = 1; $i <= 10; $i++) {
+            Cache::forget("products_platform_amazon_15_{$i}");
+            Cache::forget("products_platform_jumia_15_{$i}");
+        }
+        
+        for ($i = 1; $i <= 10; $i++) {
+            Cache::forget("products_all_10_{$i}");
+            Cache::forget("products_all_15_{$i}");
+            Cache::forget("products_all_20_{$i}");
+        }
     }
 }

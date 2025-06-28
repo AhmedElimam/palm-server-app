@@ -13,6 +13,7 @@ class ProductResource extends JsonResource
             'price' => $this->price,
             'image_url' => $this->image_url,
             'platform' => $this->platform,
+            'source_url' => $this->source_url,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
